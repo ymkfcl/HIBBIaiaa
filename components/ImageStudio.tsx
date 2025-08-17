@@ -1,7 +1,7 @@
 
 import React, { useState, memo } from 'react';
 import { GeneratedImage } from '../types.ts';
-import { DownloadIcon, SparklesIcon } from './Icons.tsx';
+import { DownloadIcon, SparklesIcon, ImageIcon } from './Icons.tsx';
 import { useImageGeneration } from '../hooks/useImageGeneration.ts';
 import { soundManager, Sfx } from '../lib/sounds.ts';
 import { t } from '../lib/i18n.ts';
@@ -163,12 +163,17 @@ const ImageStudio: React.FC<ImageStudioProps> = ({ onGenerate, images, onImageCl
 
       <h2 className="text-2xl font-semibold mb-4 text-white">{t('imageStudio.galleryTitle')}</h2>
       {images.length === 0 && !isLoading ? (
-        <div className="text-center py-16 border-2 border-dashed border-slate-700 rounded-lg">
-          <p className="text-slate-400">{t('imageStudio.galleryEmpty')}</p>
+        <div className="text-center py-20 bg-slate-800/20 border-2 border-dashed border-slate-700 rounded-lg flex flex-col items-center justify-center space-y-4">
+          <ImageIcon className="w-20 h-20 text-slate-600" />
+          <p className="text-lg text-slate-400">{t('imageStudio.galleryEmpty')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {isLoading && images.length === 0 && <div className="aspect-square bg-slate-800 rounded-lg animate-pulse"></div>}
+          {isLoading && images.length === 0 && (
+            Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="aspect-square bg-slate-800 rounded-lg animate-pulse"></div>
+            ))
+          )}
           {images.map((img) => <ImageCard key={img.id} image={img} onClick={() => onImageClick(img)} />)}
         </div>
       )}

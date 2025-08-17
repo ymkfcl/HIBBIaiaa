@@ -180,7 +180,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(30,144,255,0.3),rgba(255,255,255,0))]">
+    <div className="min-h-screen bg-transparent">
       <Header 
         credits={credits} 
         onLogoClick={() => setView(View.DASHBOARD)}
@@ -189,7 +189,9 @@ const App: React.FC = () => {
         onAccountClick={() => setView(View.ACCOUNT)}
       />
       <main className="container mx-auto px-4 py-8">
-        {renderView()}
+        <div key={view} className="animate-view-fade-in">
+          {renderView()}
+        </div>
       </main>
       {viewingImage && <ImageModal image={viewingImage} onClose={() => setViewingImage(null)} />}
     </div>

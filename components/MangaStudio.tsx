@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MangaProject, MangaPage, MangaPanel, GeneratedImage, MangaCharacter } from '../types';
+import { MangaProject, MangaPage, MangaPanel, GeneratedImage, MangaCharacter, StoredUser } from '../types';
 import { PlusIcon, TrashIcon, SparklesIcon, UsersIcon, BookOpenIcon, PencilIcon } from './Icons';
 import { useImageGeneration } from '../hooks/useImageGeneration';
 import CharacterModal from './CharacterModal';
@@ -10,7 +10,7 @@ import * as db from '../lib/db';
 
 interface MangaStudioProps {
   onGenerate: (prompt: string, options?: { aspectRatio?: string }) => Promise<GeneratedImage>;
-  user: { email: string } | null;
+  user: StoredUser | null;
 }
 
 type DeletionTarget = { type: 'project', id: string } | { type: 'character', id: string } | null;
@@ -41,7 +41,7 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate, user }) => {
   useEffect(() => {
     const loadProjects = async () => {
       if (user) {
-        const loadedProjects = await db.getProjects(user.email);
+        const loadedProjects = await db.getProjects();
         setProjects(loadedProjects);
       } else {
         setProjects([]);
@@ -57,7 +57,7 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate, user }) => {
   // Save projects to IndexedDB whenever they change
   useEffect(() => {
     if (user && projects.length > 0) {
-      db.saveProjects(user.email, projects);
+      db.saveProjects(projects);
     }
   }, [projects, user]);
 

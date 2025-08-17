@@ -4,10 +4,9 @@ import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import ImageStudio from './components/ImageStudio';
 import MangaStudio from './components/MangaStudio';
-import AuthModal from './components/AuthModal';
 import ImageModal from './components/ImageModal';
 import Account from './components/Account';
-import { GeneratedImage } from './types';
+import { GeneratedImage, StoredUser } from './types';
 import * as auth from './lib/auth';
 import * as db from './lib/db';
 import { soundManager, Sfx } from './lib/sounds';
@@ -17,14 +16,8 @@ export enum View {
   DASHBOARD,
   IMAGE_STUDIO,
   MANGA_STUDIO,
-  ACCOUNT
+  ACCOUNT,
 }
-
-// User type for app state
-type User = {
-  email: string;
-  credits: number;
-};
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -33,9 +26,10 @@ const App: React.FC = () => {
   const [credits, setCredits] = useState<number>(0);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [viewingImage, setViewingImage] = useState<GeneratedImage | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [user, setUser] = useState<StoredUser | null>(null);
   const [isAppLoading, setIsAppLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState(t('app.loading'));
+  const [appError, setAppError] = useState<string | null>(null);
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
 
   const handleSetLanguage = useCallback((lang: 'en' | 'fr') => {
@@ -48,22 +42,28 @@ const App: React.FC = () => {
     const detectedLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
     handleSetLanguage(detectedLang);
 
-    const checkSession = async () => {
-        const currentUser = await auth.getCurrentUser();
+    const initializeSession = async () => {
+      try {
+        const currentUser = await auth.getOrCreateUser();
         if (currentUser) {
           setUser(currentUser);
           setCredits(currentUser.credits);
         }
+      } catch (error) {
+        console.error("Failed to initialize session:", error);
+        setAppError(t('errors.sessionError'));
+      } finally {
         setIsAppLoading(false);
+      }
     };
-    checkSession();
+    initializeSession();
   }, [handleSetLanguage]);
 
-  // Effect to load images from IndexedDB when user logs in
+  // Effect to load images from IndexedDB when user session is ready
   useEffect(() => {
     const loadImages = async () => {
       if (user) {
-        const images = await db.getImages(user.email);
+        const images = await db.getImages();
         setGeneratedImages(images);
       } else {
         setGeneratedImages([]);
@@ -72,30 +72,6 @@ const App: React.FC = () => {
     loadImages();
   }, [user]);
 
-
-  const handleLogin = async (email: string, password: string) => {
-    const { user } = await auth.login(email, password);
-    setUser(user);
-    setCredits(user.credits);
-    setIsAuthModalOpen(false);
-    soundManager.play(Sfx.Login);
-  };
-
-  const handleSignUp = async (email: string, password: string) => {
-    const { user } = await auth.signUp(email, password);
-    setUser(user);
-    setCredits(user.credits);
-    setIsAuthModalOpen(false);
-    soundManager.play(Sfx.Login);
-  };
-
-  const handleLogout = () => {
-    auth.logout();
-    setUser(null);
-    setCredits(0);
-    setView(View.DASHBOARD);
-    soundManager.play(Sfx.Logout);
-  };
 
   const handleGenerateImage = useCallback(async (prompt: string, options?: { aspectRatio?: string }): Promise<GeneratedImage> => {
       if (!user) {
@@ -119,7 +95,7 @@ const App: React.FC = () => {
         
         const newCredits = credits - 1;
         setCredits(newCredits);
-        await auth.updateUserCredits(user.email, newCredits);
+        await auth.updateUserCredits(newCredits);
 
         const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
         const imageUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
@@ -131,7 +107,7 @@ const App: React.FC = () => {
           createdAt: new Date().toISOString(),
         };
         
-        await db.saveImage(user.email, newImage);
+        await db.saveImage(newImage);
         setGeneratedImages(prev => [newImage, ...prev]);
         soundManager.play(Sfx.Success);
         return newImage;
@@ -155,16 +131,17 @@ const App: React.FC = () => {
       default:
         return <Dashboard 
           setView={setView} 
-          user={user} 
-          onAuthRequired={() => setIsAuthModalOpen(true)}
         />;
     }
   };
   
-  if (isAppLoading) {
+  if (isAppLoading || appError) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-cyan-400 text-2xl font-bold">{t('app.loading')}</div>
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-center p-4">
+        {isAppLoading && <div className="loader mb-4"></div>}
+        <div className={`text-2xl font-bold ${appError ? 'text-red-400' : 'text-cyan-400'}`}>
+          {appError ? appError : loadingMessage}
+        </div>
       </div>
     );
   }
@@ -174,17 +151,13 @@ const App: React.FC = () => {
       <Header 
         credits={credits} 
         onLogoClick={() => setView(View.DASHBOARD)}
-        user={user}
-        onLoginClick={() => setIsAuthModalOpen(true)}
-        onLogout={handleLogout}
-        onAccountClick={() => setView(View.ACCOUNT)}
         onLanguageChange={handleSetLanguage}
         currentLanguage={language}
+        onAccountClick={() => setView(View.ACCOUNT)}
       />
       <main className="container mx-auto px-4 py-8">
         {renderView()}
       </main>
-      {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} onLogin={handleLogin} onSignUp={handleSignUp} />}
       {viewingImage && <ImageModal image={viewingImage} onClose={() => setViewingImage(null)} />}
     </div>
   );

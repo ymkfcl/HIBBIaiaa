@@ -1,4 +1,3 @@
-
 export interface GeneratedImage {
   id: string;
   url: string;
@@ -34,8 +33,6 @@ export interface MangaProject {
 }
 
 export interface StoredUser {
-  email: string;
-  passwordHash: string; // "Hash" is aspirational, it's plaintext for simulation
   credits: number;
   lastCreditReset: number;
 }

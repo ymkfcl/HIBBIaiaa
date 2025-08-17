@@ -3,12 +3,10 @@
 const translations = {
   en: {
     app: { 
-        loading: 'Loading HIBBI...' 
+        loading: 'Initializing Session...' 
     },
     header: {
         credits: '/ 170',
-        loginSignUp: 'Login / Sign Up',
-        logout: 'Logout',
     },
     dashboard: {
         title: 'Your Local AI Studio',
@@ -78,37 +76,22 @@ const translations = {
         confirmButton: 'Confirm Delete',
         cancelButton: 'Cancel',
     },
-    auth: {
-        login: 'Login',
-        signUp: 'Sign Up',
-        welcomeBack: 'Welcome Back',
-        createAccountTitle: 'Create Your Account',
-        email: 'Email',
-        password: 'Password',
-        confirmPassword: 'Confirm Password',
-        loginButton: 'Login',
-        createAccountButton: 'Create Account & Login',
-        errorEmailPasswordRequired: 'Email and password are required.',
-        errorPasswordsDoNotMatch: 'Passwords do not match.',
-        errorEmailInUse: 'Email already in use.',
-        errorInvalidCredentials: 'Invalid email or password.',
-    },
     imageModal: {
         prompt: 'Prompt',
         generated: 'Generated',
         download: 'Download Image',
     },
     account: {
-        loading: 'Loading account data...',
-        title: 'Account Data',
-        disclaimer: "This page shows the data stored for your account in your browser's local storage. This application is 100% local and does not send this information to any server.",
-        emailLabel: 'Email Address',
-        creditsLabel: 'Remaining Credits',
-        passwordLabel: 'Stored Password',
+        loading: 'Loading Account...',
+        title: 'Account Details',
+        disclaimer: 'This is an anonymous local session. Your data is stored only in your browser and is not shared.',
+        creditsLabel: 'Current Credits',
+        resetLabel: 'Credits Reset On',
         backButton: 'Back to Dashboard',
     },
     errors: {
-        mustBeLoggedIn: "You must be logged in to generate images.",
+        sessionError: 'Could not initialize session. Please check your connection or disable ad-blockers and try again.',
+        mustBeLoggedIn: "Session not active. Please refresh.",
         notEnoughCredits: "Not enough credits.",
         generationFailed: "Failed to generate image. Please try again later.",
         unexpected: 'An unexpected error occurred.',
@@ -116,12 +99,10 @@ const translations = {
   },
   fr: {
     app: { 
-        loading: 'Chargement de HIBBI...' 
+        loading: 'Initialisation de la session...' 
     },
     header: {
         credits: '/ 170',
-        loginSignUp: 'Connexion / Inscription',
-        logout: 'Déconnexion',
     },
     dashboard: {
         title: 'Votre Studio IA Local',
@@ -191,37 +172,22 @@ const translations = {
         confirmButton: 'Confirmer la Suppression',
         cancelButton: 'Annuler',
     },
-    auth: {
-        login: 'Connexion',
-        signUp: 'Inscription',
-        welcomeBack: 'Bon Retour',
-        createAccountTitle: 'Créez Votre Compte',
-        email: 'Email',
-        password: 'Mot de passe',
-        confirmPassword: 'Confirmer le mot de passe',
-        loginButton: 'Se Connecter',
-        createAccountButton: 'Créer le Compte & Se Connecter',
-        errorEmailPasswordRequired: 'L\'email et le mot de passe sont requis.',
-        errorPasswordsDoNotMatch: 'Les mots de passe ne correspondent pas.',
-        errorEmailInUse: 'Cet email est déjà utilisé.',
-        errorInvalidCredentials: 'Email ou mot de passe invalide.',
-    },
     imageModal: {
         prompt: 'Prompt',
         generated: 'Générée le',
         download: 'Télécharger l\'Image',
     },
     account: {
-        loading: 'Chargement des données du compte...',
-        title: 'Données du Compte',
-        disclaimer: "Cette page montre les données stockées pour votre compte dans le stockage local de votre navigateur. Cette application est 100% locale et n'envoie ces informations à aucun serveur.",
-        emailLabel: 'Adresse Email',
-        creditsLabel: 'Crédits Restants',
-        passwordLabel: 'Mot de Passe Stocké',
+        loading: 'Chargement du compte...',
+        title: 'Détails du Compte',
+        disclaimer: 'Ceci est une session locale anonyme. Vos données sont stockées uniquement dans votre navigateur et ne sont pas partagées.',
+        creditsLabel: 'Crédits Actuels',
+        resetLabel: 'Réinitialisation des crédits le',
         backButton: 'Retour au Tableau de Bord',
     },
     errors: {
-        mustBeLoggedIn: "Vous devez être connecté pour générer des images.",
+        sessionError: "Impossible d'initialiser la session. Veuillez vérifier votre connexion ou désactiver les bloqueurs de publicité et réessayer.",
+        mustBeLoggedIn: "Session non active. Veuillez actualiser.",
         notEnoughCredits: "Pas assez de crédits.",
         generationFailed: "La génération de l'image a échoué. Veuillez réessayer plus tard.",
         unexpected: 'Une erreur inattendue est survenue.',

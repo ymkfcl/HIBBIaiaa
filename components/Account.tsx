@@ -1,34 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { View } from '../App';
-import * as auth from '../lib/auth';
-import { UserCircleIcon, KeyIcon, ZapIcon } from './Icons';
+import { KeyIcon, ZapIcon } from './Icons';
 import { soundManager, Sfx } from '../lib/sounds';
 import { t } from '../lib/i18n';
 import { StoredUser } from '../types';
 
 interface AccountProps {
-  user: { email: string; credits: number } | null;
+  user: StoredUser | null;
   setView: (view: View) => void;
 }
 
 const Account: React.FC<AccountProps> = ({ user, setView }) => {
-  const [userData, setUserData] = useState<StoredUser | null>(null);
-
-  useEffect(() => {
+  const resetTime = useMemo(() => {
     if (user) {
-      const loadData = async () => {
-        const data = await auth.getUserData(user.email);
-        // We use credits from the user prop for real-time accuracy,
-        // but fetch the raw stored data for the password.
-        if (data) {
-          setUserData({
-              ...data,
-              credits: user.credits, 
-          });
-        }
-      };
-      loadData();
+      const oneDay = 24 * 60 * 60 * 1000;
+      const resetTimestamp = user.lastCreditReset + oneDay;
+      return new Date(resetTimestamp).toLocaleString();
     }
+    return '';
   }, [user]);
 
   const handleBackClick = () => {
@@ -36,7 +25,7 @@ const Account: React.FC<AccountProps> = ({ user, setView }) => {
     setView(View.DASHBOARD);
   }
 
-  if (!userData) {
+  if (!user) {
     return (
       <div className="flex flex-col items-center justify-center pt-16">
         <h1 className="text-2xl text-slate-400">{t('account.loading')}</h1>
@@ -55,31 +44,21 @@ const Account: React.FC<AccountProps> = ({ user, setView }) => {
 
         <div>
           <label className="flex items-center text-sm font-semibold text-slate-400 mb-2">
-            <UserCircleIcon className="w-5 h-5 mr-2" />
-            {t('account.emailLabel')}
-          </label>
-          <div className="bg-slate-900/50 border border-slate-700 rounded-md p-3 text-white font-mono select-all">
-            {userData.email}
-          </div>
-        </div>
-        
-        <div>
-          <label className="flex items-center text-sm font-semibold text-slate-400 mb-2">
             <ZapIcon className="w-5 h-5 mr-2" />
             {t('account.creditsLabel')}
           </label>
           <div className="bg-slate-900/50 border border-slate-700 rounded-md p-3 text-white font-mono select-all">
-            {userData.credits} / 170
+            {user.credits} / 170
           </div>
         </div>
 
         <div>
           <label className="flex items-center text-sm font-semibold text-slate-400 mb-2">
             <KeyIcon className="w-5 h-5 mr-2" />
-            {t('account.passwordLabel')}
+            {t('account.resetLabel')}
           </label>
-          <div className="bg-slate-900/50 border border-slate-700 rounded-md p-3 text-white font-mono select-all">
-            {userData.passwordHash}
+          <div className="bg-slate-900/50 border border-slate-700 rounded-md p-3 text-white">
+            {resetTime}
           </div>
         </div>
       </div>

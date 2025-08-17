@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
-import { ZapIcon, UserCircleIcon, Volume2Icon, VolumeXIcon, UKFlagIcon, FRFlagIcon } from './Icons';
+import { ZapIcon, Volume2Icon, VolumeXIcon, UKFlagIcon, FRFlagIcon, UserCircleIcon } from './Icons';
 import { soundManager, Sfx } from '../lib/sounds';
 import { t } from '../lib/i18n';
 
 interface HeaderProps {
   credits: number;
   onLogoClick: () => void;
-  user: { email: string } | null;
-  onLoginClick: () => void;
-  onLogout: () => void;
-  onAccountClick: () => void;
   onLanguageChange: (lang: 'en' | 'fr') => void;
   currentLanguage: 'en' | 'fr';
+  onAccountClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ credits, onLogoClick, user, onLoginClick, onLogout, onAccountClick, onLanguageChange, currentLanguage }) => {
+const Header: React.FC<HeaderProps> = ({ credits, onLogoClick, onLanguageChange, currentLanguage, onAccountClick }) => {
   const [isMuted, setIsMuted] = useState(false);
 
   const handleToggleMute = () => {
@@ -26,24 +23,15 @@ const Header: React.FC<HeaderProps> = ({ credits, onLogoClick, user, onLoginClic
     soundManager.play(Sfx.Click);
     onLogoClick();
   }
-  
-  const handleLoginClick = () => {
-    soundManager.play(Sfx.Open);
-    onLoginClick();
-  }
-  
-  const handleAccountClick = () => {
-    soundManager.play(Sfx.Click);
-    onAccountClick();
-  }
-  
-  const handleLogoutClick = () => {
-    onLogout();
-  }
 
   const handleLangClick = (lang: 'en' | 'fr') => {
     soundManager.play(Sfx.Click);
     onLanguageChange(lang);
+  }
+
+  const handleAccountClick = () => {
+    soundManager.play(Sfx.Click);
+    onAccountClick();
   }
 
   return (
@@ -68,28 +56,13 @@ const Header: React.FC<HeaderProps> = ({ credits, onLogoClick, user, onLoginClic
            <button onClick={handleToggleMute} title="Toggle Sound" className="p-2 text-slate-400 hover:text-cyan-400 transition-colors rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500">
             {isMuted ? <VolumeXIcon className="w-5 h-5" /> : <Volume2Icon className="w-5 h-5" />}
           </button>
+          <button onClick={handleAccountClick} title="Account" className="p-2 text-slate-400 hover:text-cyan-400 transition-colors rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500">
+              <UserCircleIcon className="w-5 h-5" />
+          </button>
           <div className="flex items-center space-x-2 bg-slate-800/50 border border-slate-700 rounded-full px-3 sm:px-4 py-2 text-cyan-400">
             <ZapIcon className="w-5 h-5" />
             <span className="font-semibold">{credits}</span>
             <span className="hidden sm:inline text-xs text-slate-400">{t('header.credits')}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <UserCircleIcon className="w-8 h-8 text-slate-400" />
-            <div className="text-sm">
-              {user ? (
-                <div className="flex flex-col items-start">
-                  <button onClick={handleAccountClick} className="font-semibold hidden sm:block hover:text-cyan-400 transition-colors">{user.email}</button>
-                  <button onClick={handleLogoutClick} className="text-xs text-slate-500 hover:text-cyan-400 transition-colors -mt-1 sm:mt-0">{t('header.logout')}</button>
-                </div>
-              ) : (
-                <button 
-                  onClick={handleLoginClick} 
-                  className="font-semibold hover:text-cyan-400 transition-colors"
-                >
-                  {t('header.loginSignUp')}
-                </button>
-              )}
-            </div>
           </div>
         </div>
       </div>

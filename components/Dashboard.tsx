@@ -6,20 +6,13 @@ import { t } from '../lib/i18n';
 
 interface DashboardProps {
   setView: (view: View) => void;
-  user: { email: string } | null;
-  onAuthRequired: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ setView, user, onAuthRequired }) => {
+const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
   
   const handleCardClick = (view: View) => {
-    if (user) {
-      soundManager.play(Sfx.Click);
-      setView(view);
-    } else {
-      soundManager.play(Sfx.Open);
-      onAuthRequired();
-    }
+    soundManager.play(Sfx.Click);
+    setView(view);
   };
 
   const Card: React.FC<{

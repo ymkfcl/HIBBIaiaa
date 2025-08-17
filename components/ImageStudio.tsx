@@ -1,9 +1,10 @@
+
 import React, { useState, memo } from 'react';
-import { GeneratedImage } from '../types';
-import { DownloadIcon, SparklesIcon } from './Icons';
-import { useImageGeneration } from '../hooks/useImageGeneration';
-import { soundManager, Sfx } from '../lib/sounds';
-import { t } from '../lib/i18n';
+import { GeneratedImage } from '../types.ts';
+import { DownloadIcon, SparklesIcon } from './Icons.tsx';
+import { useImageGeneration } from '../hooks/useImageGeneration.ts';
+import { soundManager, Sfx } from '../lib/sounds.ts';
+import { t } from '../lib/i18n.ts';
 
 type AspectRatio = '1:1' | '16:9' | '9:16';
 

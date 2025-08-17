@@ -1,8 +1,9 @@
+
 import React from 'react';
-import { View } from '../App';
-import { ImageIcon, BookOpenIcon } from './Icons';
-import { soundManager, Sfx } from '../lib/sounds';
-import { t } from '../lib/i18n';
+import { View } from '../App.tsx';
+import { ImageIcon, BookOpenIcon } from './Icons.tsx';
+import { soundManager, Sfx } from '../lib/sounds.ts';
+import { t } from '../lib/i18n.ts';
 
 interface DashboardProps {
   setView: (view: View) => void;
@@ -20,20 +21,32 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
     description: string;
     icon: React.ReactNode;
     onClick: () => void;
-  }> = ({ title, description, icon, onClick }) => (
-    <div
-      onClick={onClick}
-      className="bg-slate-800/50 p-8 rounded-lg border border-cyan-500/20 hover:border-cyan-400/50 hover:bg-slate-800/80 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 group"
-    >
-      <div className="flex flex-col items-center text-center">
-        <div className="mb-4 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
-          {icon}
+    disabled?: boolean;
+  }> = ({ title, description, icon, onClick, disabled }) => {
+    const baseClasses = "relative bg-slate-800/50 p-8 rounded-lg border border-cyan-500/20 transition-all duration-300 group";
+    const interactiveClasses = "hover:border-cyan-400/50 hover:bg-slate-800/80 transform hover:-translate-y-1 cursor-pointer";
+    const disabledClasses = "opacity-60 cursor-not-allowed";
+
+    return (
+      <div
+        onClick={!disabled ? onClick : undefined}
+        className={`${baseClasses} ${disabled ? disabledClasses : interactiveClasses}`}
+      >
+        {disabled && (
+          <div className="absolute top-3 right-3 bg-yellow-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
+            {t('dashboard.comingSoon')}
+          </div>
+        )}
+        <div className="flex flex-col items-center text-center">
+          <div className={`mb-4 text-cyan-400 ${!disabled ? 'group-hover:text-cyan-300' : ''} transition-colors duration-300`}>
+            {icon}
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
+          <p className="text-slate-400">{description}</p>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
-        <p className="text-slate-400">{description}</p>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="flex flex-col items-center justify-center pt-16">
@@ -54,7 +67,8 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
           title={t('dashboard.mangaStudioTitle')}
           description={t('dashboard.mangaStudioDescription')}
           icon={<BookOpenIcon className="w-16 h-16" />}
-          onClick={() => handleCardClick(View.MANGA_STUDIO)}
+          onClick={() => {}}
+          disabled
         />
       </div>
     </div>

@@ -1,8 +1,9 @@
+
 import React from 'react';
-import { GeneratedImage } from '../types';
-import { DownloadIcon, XIcon } from './Icons';
-import { soundManager, Sfx } from '../lib/sounds';
-import { t } from '../lib/i18n';
+import { GeneratedImage } from '../types.ts';
+import { DownloadIcon, XIcon } from './Icons.tsx';
+import { soundManager, Sfx } from '../lib/sounds.ts';
+import { t } from '../lib/i18n.ts';
 
 interface ImageModalProps {
   image: GeneratedImage;

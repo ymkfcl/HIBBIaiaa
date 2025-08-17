@@ -1,16 +1,17 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import Header from './components/Header';
-import Dashboard from './components/Dashboard';
-import ImageStudio from './components/ImageStudio';
-import MangaStudio from './components/MangaStudio';
-import ImageModal from './components/ImageModal';
-import Account from './components/Account';
-import { GeneratedImage, StoredUser } from './types';
-import * as auth from './lib/auth';
-import * as db from './lib/db';
-import { soundManager, Sfx } from './lib/sounds';
-import { setLanguage as setI18nLanguage, t } from './lib/i18n';
+import Header from './components/Header.tsx';
+import Dashboard from './components/Dashboard.tsx';
+import ImageStudio from './components/ImageStudio.tsx';
+import MangaStudio from './components/MangaStudio.tsx';
+import ImageModal from './components/ImageModal.tsx';
+import Account from './components/Account.tsx';
+import { GeneratedImage, StoredUser } from './types.ts';
+import * as auth from './lib/auth.ts';
+import * as db from './lib/db.ts';
+import { soundManager, Sfx } from './lib/sounds.ts';
+import { setLanguage as setI18nLanguage, t } from './lib/i18n.ts';
 
 export enum View {
   DASHBOARD,

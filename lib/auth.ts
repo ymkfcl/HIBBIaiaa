@@ -1,6 +1,7 @@
+
 // Local anonymous session management.
-import { StoredUser } from '../types';
-import * as db from './db';
+import { StoredUser } from '../types.ts';
+import * as db from './db.ts';
 
 // Helper to check if credits need to be reset
 const checkAndResetCredits = (user: StoredUser): StoredUser => {

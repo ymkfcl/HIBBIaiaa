@@ -1,3 +1,4 @@
+
 // lib/i18n.ts
 
 const translations = {
@@ -15,6 +16,7 @@ const translations = {
         imageStudioDescription: 'Generate single, high-quality images from text prompts. Perfect for concept art, avatars, and inspiration.',
         mangaStudioTitle: 'Manga Studio',
         mangaStudioDescription: 'Create full manga books with characters, pages, and panels. Bring your stories to life, one frame at a time.',
+        comingSoon: 'Coming Soon',
     },
     imageStudio: {
         title: 'Image Studio',
@@ -111,6 +113,7 @@ const translations = {
         imageStudioDescription: 'Générez des images uniques de haute qualité à partir de textes. Parfait pour le concept art, les avatars et l\'inspiration.',
         mangaStudioTitle: 'Studio de Manga',
         mangaStudioDescription: 'Créez des livres de manga complets avec personnages, pages et panneaux. Donnez vie à vos histoires, une case à la fois.',
+        comingSoon: 'Bientôt disponible',
     },
     imageStudio: {
         title: 'Studio d\'Image',

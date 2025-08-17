@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
-import { ZapIcon, Volume2Icon, VolumeXIcon, UKFlagIcon, FRFlagIcon, UserCircleIcon } from './Icons';
-import { soundManager, Sfx } from '../lib/sounds';
-import { t } from '../lib/i18n';
+import { ZapIcon, Volume2Icon, VolumeXIcon, UKFlagIcon, FRFlagIcon, UserCircleIcon } from './Icons.tsx';
+import { soundManager, Sfx } from '../lib/sounds.ts';
+import { t } from '../lib/i18n.ts';
 
 interface HeaderProps {
   credits: number;

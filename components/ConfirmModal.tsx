@@ -1,7 +1,8 @@
+
 import React from 'react';
-import { XIcon, AlertTriangleIcon } from './Icons';
-import { soundManager, Sfx } from '../lib/sounds';
-import { t } from '../lib/i18n';
+import { XIcon, AlertTriangleIcon } from './Icons.tsx';
+import { soundManager, Sfx } from '../lib/sounds.ts';
+import { t } from '../lib/i18n.ts';
 
 interface ConfirmModalProps {
   title: string;

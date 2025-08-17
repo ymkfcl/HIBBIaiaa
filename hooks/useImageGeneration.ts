@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { GeneratedImage } from '../types';
+import { GeneratedImage } from '../types.ts';
 
 type GenerateFunction = (prompt: string, options?: any) => Promise<GeneratedImage>;
 

@@ -1,9 +1,10 @@
+
 import React, { useMemo } from 'react';
-import { View } from '../App';
-import { KeyIcon, ZapIcon } from './Icons';
-import { soundManager, Sfx } from '../lib/sounds';
-import { t } from '../lib/i18n';
-import { StoredUser } from '../types';
+import { View } from '../App.tsx';
+import { KeyIcon, ZapIcon } from './Icons.tsx';
+import { soundManager, Sfx } from '../lib/sounds.ts';
+import { t } from '../lib/i18n.ts';
+import { StoredUser } from '../types.ts';
 
 interface AccountProps {
   user: StoredUser | null;

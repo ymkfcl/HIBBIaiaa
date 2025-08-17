@@ -1,5 +1,4 @@
 {
-  "framework": "other",
   "rewrites": [
     {
       "source": "/((?!api/|sw.js|manifest.json|favicon.svg|[\\w-]+\\.\\w+).*)",

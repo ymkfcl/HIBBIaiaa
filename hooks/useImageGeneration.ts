@@ -10,8 +10,8 @@ export const useImageGeneration = (onGenerate: GenerateFunction) => {
   const generateImage = async (prompt: string, options?: any): Promise<boolean | GeneratedImage> => {
     if (!prompt.trim() || isLoading) return false;
 
-    setIsLoading(true);
     setError(null);
+    setIsLoading(true);
     try {
       const result = await onGenerate(prompt, options);
       return result; // Success, return the image object

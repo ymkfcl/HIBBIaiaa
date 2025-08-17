@@ -4,32 +4,30 @@ import * as auth from '../lib/auth';
 import { UserCircleIcon, KeyIcon, ZapIcon } from './Icons';
 import { soundManager, Sfx } from '../lib/sounds';
 import { t } from '../lib/i18n';
+import { StoredUser } from '../types';
 
 interface AccountProps {
   user: { email: string; credits: number } | null;
   setView: (view: View) => void;
 }
 
-type UserData = {
-  email: string;
-  passwordHash: string;
-  credits: number;
-};
-
 const Account: React.FC<AccountProps> = ({ user, setView }) => {
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState<StoredUser | null>(null);
 
   useEffect(() => {
     if (user) {
-      const data = auth.getUserData(user.email);
-      // We use credits from the user prop for real-time accuracy,
-      // but fetch the raw stored data for the password.
-      if (data) {
-        setUserData({
-            ...data,
-            credits: user.credits, 
-        });
-      }
+      const loadData = async () => {
+        const data = await auth.getUserData(user.email);
+        // We use credits from the user prop for real-time accuracy,
+        // but fetch the raw stored data for the password.
+        if (data) {
+          setUserData({
+              ...data,
+              credits: user.credits, 
+          });
+        }
+      };
+      loadData();
     }
   }, [user]);
 

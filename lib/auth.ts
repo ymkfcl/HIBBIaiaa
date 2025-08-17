@@ -1,25 +1,10 @@
 // NOTE: This is a simulation for a 100% local application.
 // In a real-world scenario, never store passwords in plaintext.
-// This uses localStorage as a mock database.
+// This uses IndexedDB as a mock database.
+import { StoredUser } from '../types';
+import * as db from './db';
 
-type StoredUser = {
-  email: string;
-  passwordHash: string; // "Hash" is aspirational, it's plaintext for simulation
-  credits: number;
-  lastCreditReset: number;
-};
-
-const USERS_KEY = 'hibbi_users';
 const SESSION_KEY = 'hibbi_session';
-
-const getUsers = (): StoredUser[] => {
-  const usersJson = localStorage.getItem(USERS_KEY);
-  return usersJson ? JSON.parse(usersJson) : [];
-};
-
-const saveUsers = (users: StoredUser[]) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-};
 
 // Helper to check if credits need to be reset
 const checkAndResetCredits = (user: StoredUser): StoredUser => {
@@ -35,9 +20,8 @@ export const signUp = async (email: string, password: string): Promise<{ user: S
   // Simulate network delay
   await new Promise(res => setTimeout(res, 500));
 
-  const users = getUsers();
   const normalizedEmail = email.toLowerCase();
-  const existingUser = users.find(u => u.email === normalizedEmail);
+  const existingUser = await db.getUser(normalizedEmail);
 
   if (existingUser) {
     throw new Error('Email already in use.');
@@ -49,8 +33,7 @@ export const signUp = async (email: string, password: string): Promise<{ user: S
     credits: 170,
     lastCreditReset: Date.now()
   };
-  users.push(newUser);
-  saveUsers(users);
+  await db.saveUser(newUser);
 
   // Automatically log in the new user
   localStorage.setItem(SESSION_KEY, normalizedEmail);
@@ -62,9 +45,8 @@ export const login = async (email: string, password: string): Promise<{ user: St
   // Simulate network delay
   await new Promise(res => setTimeout(res, 500));
   
-  const users = getUsers();
   const normalizedEmail = email.toLowerCase();
-  const user = users.find(u => u.email === normalizedEmail);
+  const user = await db.getUser(normalizedEmail);
 
   if (!user || user.passwordHash !== password) {
     throw new Error('Invalid email or password.');
@@ -72,21 +54,19 @@ export const login = async (email: string, password: string): Promise<{ user: St
 
   const updatedUser = checkAndResetCredits(user);
   if (user.credits !== updatedUser.credits || user.lastCreditReset !== updatedUser.lastCreditReset) {
-      const updatedUsers = users.map(u => u.email === normalizedEmail ? updatedUser : u);
-      saveUsers(updatedUsers);
+      await db.saveUser(updatedUser);
   }
 
   localStorage.setItem(SESSION_KEY, normalizedEmail);
   return { user: updatedUser };
 };
 
-export const updateUserCredits = (email: string, credits: number) => {
-    const users = getUsers();
+export const updateUserCredits = async (email: string, credits: number) => {
     const normalizedEmail = email.toLowerCase();
-    const userIndex = users.findIndex(u => u.email === normalizedEmail);
-    if (userIndex > -1) {
-        users[userIndex].credits = credits;
-        saveUsers(users);
+    const user = await db.getUser(normalizedEmail);
+    if (user) {
+        user.credits = credits;
+        await db.saveUser(user);
     }
 };
 
@@ -94,20 +74,18 @@ export const logout = () => {
   localStorage.removeItem(SESSION_KEY);
 };
 
-export const getCurrentUser = (): StoredUser | null => {
+export const getCurrentUser = async (): Promise<StoredUser | null> => {
   const userEmail = localStorage.getItem(SESSION_KEY);
   if (!userEmail) {
     return null;
   }
   
-  const users = getUsers();
-  const user = users.find(u => u.email === userEmail);
+  const user = await db.getUser(userEmail);
   
   if (user) {
     const updatedUser = checkAndResetCredits(user);
     if (user.credits !== updatedUser.credits || user.lastCreditReset !== updatedUser.lastCreditReset) {
-        const updatedUsers = users.map(u => u.email === userEmail ? updatedUser : u);
-        saveUsers(updatedUsers);
+        await db.saveUser(updatedUser);
     }
     return updatedUser;
   }
@@ -117,9 +95,8 @@ export const getCurrentUser = (): StoredUser | null => {
   return null;
 };
 
-export const getUserData = (email: string): StoredUser | null => {
-    const users = getUsers();
+export const getUserData = async (email: string): Promise<StoredUser | null> => {
     const normalizedEmail = email.toLowerCase();
-    const user = users.find(u => u.email === normalizedEmail);
+    const user = await db.getUser(normalizedEmail);
     return user || null;
 };

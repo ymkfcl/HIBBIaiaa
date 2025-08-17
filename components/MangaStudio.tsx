@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MangaProject, MangaPage, MangaPanel, GeneratedImage, MangaCharacter } from '../types';
-import { PlusIcon, TrashIcon, SparklesIcon, UsersIcon, BookOpenIcon } from './Icons';
+import { PlusIcon, TrashIcon, SparklesIcon, UsersIcon, BookOpenIcon, PencilIcon } from './Icons';
 import { useImageGeneration } from '../hooks/useImageGeneration';
 import CharacterModal from './CharacterModal';
+import ConfirmModal from './ConfirmModal';
 import { soundManager, Sfx } from '../lib/sounds';
 import { t } from '../lib/i18n';
+import * as db from '../lib/db';
 
 interface MangaStudioProps {
   onGenerate: (prompt: string, options?: { aspectRatio?: string }) => Promise<GeneratedImage>;
+  user: { email: string } | null;
 }
+
+type DeletionTarget = { type: 'project', id: string } | { type: 'character', id: string } | null;
+
 
 const TabButton: React.FC<{ icon: React.ReactNode, children: React.ReactNode, active: boolean, onClick: () => void }> = ({ icon, children, active, onClick }) => (
     <button onClick={onClick} className={`flex-1 flex items-center justify-center p-3 text-sm font-semibold transition-colors ${active ? 'bg-slate-700/50 text-cyan-400' : 'text-slate-400 hover:bg-slate-700/20'}`}>
@@ -17,7 +23,7 @@ const TabButton: React.FC<{ icon: React.ReactNode, children: React.ReactNode, ac
 );
 
 
-const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
+const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate, user }) => {
   const [projects, setProjects] = useState<MangaProject[]>([]);
   const [activeProject, setActiveProject] = useState<MangaProject | null>(null);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
@@ -25,13 +31,59 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
   const [activeSidebarTab, setActiveSidebarTab] = useState<'pages' | 'characters'>('pages');
   const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
   const [characterToEdit, setCharacterToEdit] = useState<MangaCharacter | null>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editingTitleValue, setEditingTitleValue] = useState('');
+  const [deletionTarget, setDeletionTarget] = useState<DeletionTarget>(null);
 
   const { isLoading: isPanelGenerating, error: panelError, generateImage: generatePanelImage } = useImageGeneration(onGenerate);
 
+  // Load projects from IndexedDB on user change
+  useEffect(() => {
+    const loadProjects = async () => {
+      if (user) {
+        const loadedProjects = await db.getProjects(user.email);
+        setProjects(loadedProjects);
+      } else {
+        setProjects([]);
+      }
+    };
+    
+    setActiveProject(null);
+    setSelectedPageId(null);
+    setSelectedPanelId(null);
+    loadProjects();
+  }, [user]);
+
+  // Save projects to IndexedDB whenever they change
+  useEffect(() => {
+    if (user && projects.length > 0) {
+      db.saveProjects(user.email, projects);
+    }
+  }, [projects, user]);
+
+  // Reset title editing state when active project changes
+  useEffect(() => {
+    if (activeProject) {
+        setIsEditingTitle(false);
+        setEditingTitleValue(activeProject.title);
+    }
+  }, [activeProject?.id]);
+
+
   const createNewProject = () => {
+    const baseTitle = t('mangaStudio.untitledProjectBase');
+    const untitledProjects = projects.filter(p => p.title.startsWith(baseTitle));
+    const existingNumbers = untitledProjects
+        .map(p => {
+            const numStr = p.title.substring(baseTitle.length).trim();
+            return numStr === '' && p.title === baseTitle ? 1 : parseInt(numStr, 10);
+        })
+        .filter(n => !isNaN(n));
+    const maxNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) : 0;
+
     const newProject: MangaProject = {
       id: `proj_${Date.now()}`,
-      title: t('mangaStudio.untitledProject'),
+      title: `${baseTitle} ${maxNumber + 1}`,
       characters: [],
       pages: [],
       updatedAt: new Date().toISOString(),
@@ -41,10 +93,38 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
     soundManager.play(Sfx.Add);
   };
   
+  const confirmDeletion = (target: DeletionTarget) => {
+    soundManager.play(Sfx.Click);
+    setDeletionTarget(target);
+  };
+
+  const executeDeletion = () => {
+    if (!deletionTarget) return;
+
+    soundManager.play(Sfx.Delete);
+
+    if (deletionTarget.type === 'project') {
+        const updatedProjects = projects.filter(p => p.id !== deletionTarget.id);
+        setProjects(updatedProjects);
+        if (activeProject?.id === deletionTarget.id) {
+            setActiveProject(null);
+            setSelectedPageId(null);
+            setSelectedPanelId(null);
+        }
+    } else if (deletionTarget.type === 'character' && activeProject) {
+        const updatedCharacters = activeProject.characters.filter(c => c.id !== deletionTarget.id);
+        const updatedProject = { ...activeProject, characters: updatedCharacters };
+        updateActiveProjectState(updatedProject);
+    }
+    
+    setDeletionTarget(null);
+  };
+  
   // --- Project State Updaters ---
   const updateActiveProjectState = (updatedProject: MangaProject) => {
-    setActiveProject(updatedProject);
-    setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
+    const projectWithTimestamp = { ...updatedProject, updatedAt: new Date().toISOString() };
+    setActiveProject(projectWithTimestamp);
+    setProjects(projects.map(p => p.id === projectWithTimestamp.id ? projectWithTimestamp : p));
   };
   
   const addPage = () => {
@@ -89,7 +169,31 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
     if (!selectedPanelId) return;
     const generatedImage = await generatePanelImage(prompt, { aspectRatio: '1:1' });
     if(generatedImage) {
-        updatePanel(selectedPanelId, { image: generatedImage as any }); // Type assertion to fit
+        updatePanel(selectedPanelId, { image: generatedImage as any });
+    }
+  };
+  
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditingTitleValue(e.target.value);
+  };
+
+  const handleTitleSave = () => {
+    if (!activeProject || !editingTitleValue.trim()) {
+        setEditingTitleValue(activeProject?.title || '');
+        setIsEditingTitle(false);
+        return;
+    };
+    const updatedProject = { ...activeProject, title: editingTitleValue.trim() };
+    updateActiveProjectState(updatedProject);
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+        handleTitleSave();
+    } else if (e.key === 'Escape') {
+        setEditingTitleValue(activeProject?.title || '');
+        setIsEditingTitle(false);
     }
   };
 
@@ -104,16 +208,12 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
             const newCharacter: MangaCharacter = {
                 ...characterData,
                 id: `char_${Date.now()}`,
-                avatarUrl: characterData.avatarUrl! // It will be defined by this point
+                avatarUrl: characterData.avatarUrl!
             };
             updatedCharacters = [...activeProject.characters, newCharacter];
         }
 
-        const updatedProject = {
-            ...activeProject,
-            characters: updatedCharacters,
-            updatedAt: new Date().toISOString()
-        };
+        const updatedProject = { ...activeProject, characters: updatedCharacters };
         updateActiveProjectState(updatedProject);
         closeCharacterModal();
     };
@@ -132,14 +232,6 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
     const closeCharacterModal = () => {
         setIsCharacterModalOpen(false);
         setCharacterToEdit(null);
-    };
-    
-    const deleteCharacter = (characterId: string) => {
-        if (!activeProject || !window.confirm(t('mangaStudio.confirmDeleteCharacter'))) return;
-        const updatedCharacters = activeProject.characters.filter(c => c.id !== characterId);
-        const updatedProject = { ...activeProject, characters: updatedCharacters, updatedAt: new Date().toISOString() };
-        updateActiveProjectState(updatedProject);
-        soundManager.play(Sfx.Delete);
     };
     
     const handleAddCharacterToPrompt = (character: MangaCharacter) => {
@@ -186,8 +278,28 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
     return (
       <div className="h-[calc(100vh-120px)] flex flex-col">
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
-            <h1 className="text-2xl font-bold text-cyan-400 truncate pr-4">{activeProject.title}</h1>
-            <button onClick={() => { soundManager.play(Sfx.Click); setActiveProject(null); setSelectedPageId(null); setSelectedPanelId(null); }} className="text-slate-300 hover:text-white flex-shrink-0">
+            <div className="flex items-center gap-3 group min-w-0">
+                {isEditingTitle ? (
+                     <input
+                        type="text"
+                        value={editingTitleValue}
+                        onChange={handleTitleChange}
+                        onBlur={handleTitleSave}
+                        onKeyDown={handleTitleKeyDown}
+                        className="text-2xl font-bold bg-slate-700 text-cyan-400 rounded-md px-2 -mx-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        autoFocus
+                        onFocus={(e) => e.target.select()}
+                    />
+                ) : (
+                    <>
+                        <h1 className="text-2xl font-bold text-cyan-400 truncate">{activeProject.title}</h1>
+                        <button onClick={() => setIsEditingTitle(true)} title="Edit title" className="text-slate-500 hover:text-cyan-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity flex-shrink-0">
+                            <PencilIcon className="w-5 h-5" />
+                        </button>
+                    </>
+                )}
+            </div>
+            <button onClick={() => { soundManager.play(Sfx.Click); setActiveProject(null); setSelectedPageId(null); setSelectedPanelId(null); }} className="text-slate-300 hover:text-white flex-shrink-0 ml-4">
                 &larr; {t('mangaStudio.backToProjects')}
             </button>
         </div>
@@ -219,18 +331,24 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
                 {activeSidebarTab === 'characters' && (
                     <div className="p-4 flex flex-col flex-grow min-h-0">
                         <div className="space-y-3 overflow-y-auto flex-grow pr-1">
-                            {activeProject.characters.map(char => (
-                                <div key={char.id} className="group flex items-center space-x-3 p-2 rounded bg-slate-700 hover:bg-slate-600 cursor-pointer" onClick={() => openEditCharacterModal(char)}>
-                                    <img src={char.avatarUrl} className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-slate-500" alt={char.name} />
-                                    <div className="flex-grow truncate">
-                                        <p className="font-semibold text-sm text-white truncate">{char.name}</p>
-                                        <p className="text-xs text-slate-400 truncate">{char.description}</p>
+                            {activeProject.characters.length > 0 ? (
+                                activeProject.characters.map(char => (
+                                    <div key={char.id} className="group flex items-center space-x-3 p-2 rounded bg-slate-700 hover:bg-slate-600 cursor-pointer" onClick={() => openEditCharacterModal(char)}>
+                                        <img src={char.avatarUrl} className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-slate-500" alt={char.name} />
+                                        <div className="flex-grow truncate">
+                                            <p className="font-semibold text-sm text-white truncate">{char.name}</p>
+                                            <p className="text-xs text-slate-400 truncate">{char.description}</p>
+                                        </div>
+                                        <button onClick={(e) => { e.stopPropagation(); confirmDeletion({ type: 'character', id: char.id }); }} className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 p-1">
+                                            <TrashIcon className="w-4 h-4" />
+                                        </button>
                                     </div>
-                                    <button onClick={(e) => { e.stopPropagation(); deleteCharacter(char.id); }} className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 p-1">
-                                        <TrashIcon className="w-4 h-4" />
-                                    </button>
+                                ))
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-center text-slate-500 text-sm p-4">
+                                  {t('mangaStudio.noCharacters')}
                                 </div>
-                            ))}
+                            )}
                         </div>
                         <button onClick={handleOpenNewCharacterModal} className="mt-4 bg-slate-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-cyan-500 transition-colors w-full flex items-center justify-center">
                            <PlusIcon className="w-5 h-5 mr-2" />{t('mangaStudio.newCharacter')}
@@ -331,6 +449,12 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
             characterToEdit={characterToEdit}
             onGenerate={onGenerate}
         />}
+        {deletionTarget && <ConfirmModal 
+            title={deletionTarget.type === 'project' ? t('mangaStudio.deleteProject') : t('mangaStudio.deleteCharacter')}
+            message={deletionTarget.type === 'project' ? t('mangaStudio.confirmDeleteProject') : t('mangaStudio.confirmDeleteCharacter')}
+            onConfirm={executeDeletion}
+            onCancel={() => setDeletionTarget(null)}
+        />}
       </div>
     );
   }
@@ -355,18 +479,24 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
             <p className="text-slate-400">{t('mangaStudio.noProjects')}</p>
           </div>
         ) : (
-          projects.map(proj => (
-            <div key={proj.id} className="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:border-cyan-500/50 transition-colors group">
-              <h3 className="text-xl font-bold text-white mb-2">{proj.title}</h3>
-              <p className="text-sm text-slate-400 mb-4">{t('mangaStudio.lastUpdated')}: {new Date(proj.updatedAt).toLocaleString()}</p>
-              <div className="flex justify-between items-center">
+          projects.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map(proj => (
+            <div key={proj.id} className="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:border-cyan-500/50 transition-colors group flex flex-col">
+              <div className="flex-grow">
+                <h3 className="text-xl font-bold text-white mb-2">{proj.title}</h3>
+                <p className="text-sm text-slate-400 mb-4">{t('mangaStudio.lastUpdated')}: {new Date(proj.updatedAt).toLocaleString()}</p>
+              </div>
+              <div className="flex justify-between items-center mt-2">
                 <button 
                   onClick={() => { soundManager.play(Sfx.Click); setActiveProject(proj); }}
                   className="bg-slate-700 text-white font-semibold py-2 px-4 rounded-md hover:bg-cyan-500 transition-colors"
                 >
                   {t('mangaStudio.openEditor')}
                 </button>
-                <button className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); confirmDeletion({ type: 'project', id: proj.id }) }}
+                  title={t('mangaStudio.deleteProject')}
+                  className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity p-2 -m-2"
+                >
                   <TrashIcon className="w-5 h-5" />
                 </button>
               </div>
@@ -374,6 +504,12 @@ const MangaStudio: React.FC<MangaStudioProps> = ({ onGenerate }) => {
           ))
         )}
       </div>
+       {deletionTarget && <ConfirmModal 
+            title={t('mangaStudio.deleteProject')}
+            message={t('mangaStudio.confirmDeleteProject')}
+            onConfirm={executeDeletion}
+            onCancel={() => setDeletionTarget(null)}
+        />}
     </div>
   );
 };

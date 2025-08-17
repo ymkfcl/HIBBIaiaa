@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { GeneratedImage } from '../types';
 import { DownloadIcon, SparklesIcon } from './Icons';
 import { useImageGeneration } from '../hooks/useImageGeneration';
@@ -13,7 +13,7 @@ interface ImageStudioProps {
   onImageClick: (image: GeneratedImage) => void;
 }
 
-const ImageCard: React.FC<{ image: GeneratedImage; onClick: () => void }> = ({ image, onClick }) => {
+const ImageCard: React.FC<{ image: GeneratedImage; onClick: () => void }> = memo(({ image, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleDownload = (e: React.MouseEvent) => {
@@ -41,7 +41,11 @@ const ImageCard: React.FC<{ image: GeneratedImage; onClick: () => void }> = ({ i
           <p className="text-sm line-clamp-3">{image.prompt}</p>
           <div className="flex justify-between items-center">
             <span className="text-xs text-gray-400">{new Date(image.createdAt).toLocaleDateString()}</span>
-            <button onClick={handleDownload} className="p-2 rounded-full bg-cyan-500/80 hover:bg-cyan-500 transition-colors">
+            <button
+              onClick={handleDownload}
+              className="p-2 rounded-full bg-cyan-500/80 hover:bg-cyan-500 transition-colors"
+              aria-label={t('imageModal.download')}
+            >
               <DownloadIcon className="w-5 h-5" />
             </button>
           </div>
@@ -49,7 +53,7 @@ const ImageCard: React.FC<{ image: GeneratedImage; onClick: () => void }> = ({ i
       </div>
     </div>
   );
-};
+});
 
 const quickStyles = {
     'Content Type': ['Epic landscape', 'Close-up portrait of a celebrity', 'Fantasy character concept art', 'Cyberpunk city street'],

@@ -9,6 +9,7 @@ import ImageModal from './components/ImageModal';
 import Account from './components/Account';
 import { GeneratedImage } from './types';
 import * as auth from './lib/auth';
+import * as db from './lib/db';
 import { soundManager, Sfx } from './lib/sounds';
 import { setLanguage as setI18nLanguage, t } from './lib/i18n';
 
@@ -42,19 +43,35 @@ const App: React.FC = () => {
     setLanguage(lang);
   }, []);
 
-  // Detect language and check for session on initial load
+  // Effect to check for an active session on initial app load
   useEffect(() => {
-    // Automatically set language from browser settings
     const detectedLang = navigator.language.startsWith('fr') ? 'fr' : 'en';
     handleSetLanguage(detectedLang);
 
-    const currentUser = auth.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-      setCredits(currentUser.credits);
-    }
-    setIsAppLoading(false);
+    const checkSession = async () => {
+        const currentUser = await auth.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          setCredits(currentUser.credits);
+        }
+        setIsAppLoading(false);
+    };
+    checkSession();
   }, [handleSetLanguage]);
+
+  // Effect to load images from IndexedDB when user logs in
+  useEffect(() => {
+    const loadImages = async () => {
+      if (user) {
+        const images = await db.getImages(user.email);
+        setGeneratedImages(images);
+      } else {
+        setGeneratedImages([]);
+      }
+    };
+    loadImages();
+  }, [user]);
+
 
   const handleLogin = async (email: string, password: string) => {
     const { user } = await auth.login(email, password);
@@ -76,7 +93,7 @@ const App: React.FC = () => {
     auth.logout();
     setUser(null);
     setCredits(0);
-    setView(View.DASHBOARD); // Return to dashboard on logout
+    setView(View.DASHBOARD);
     soundManager.play(Sfx.Logout);
   };
 
@@ -102,7 +119,7 @@ const App: React.FC = () => {
         
         const newCredits = credits - 1;
         setCredits(newCredits);
-        auth.updateUserCredits(user.email, newCredits);
+        await auth.updateUserCredits(user.email, newCredits);
 
         const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
         const imageUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
@@ -114,6 +131,7 @@ const App: React.FC = () => {
           createdAt: new Date().toISOString(),
         };
         
+        await db.saveImage(user.email, newImage);
         setGeneratedImages(prev => [newImage, ...prev]);
         soundManager.play(Sfx.Success);
         return newImage;
@@ -130,7 +148,7 @@ const App: React.FC = () => {
       case View.IMAGE_STUDIO:
         return <ImageStudio onGenerate={handleGenerateImage} images={generatedImages} onImageClick={setViewingImage} />;
       case View.MANGA_STUDIO:
-        return <MangaStudio onGenerate={handleGenerateImage} />;
+        return <MangaStudio onGenerate={handleGenerateImage} user={user} />;
       case View.ACCOUNT:
         return <Account user={user} setView={setView} />;
       case View.DASHBOARD:

@@ -7,7 +7,7 @@ export interface GeneratedImage {
 }
 
 export interface MangaPanel {
-  id: string;
+  id:string;
   image: GeneratedImage | null;
   dialogue: string;
 }
@@ -32,4 +32,10 @@ export interface MangaProject {
   pages: MangaPage[];
   updatedAt: string;
 }
-   
+
+export interface StoredUser {
+  email: string;
+  passwordHash: string; // "Hash" is aspirational, it's plaintext for simulation
+  credits: number;
+  lastCreditReset: number;
+}

@@ -1,0 +1,5 @@
+{
+  "name": "HIBBI: AI Image & Manga Generator",
+  "description": "HIBBI is a futuristic studio for creating both single AI images and full manga books, running entirely locally in your browser.",
+  "requestFramePermissions": []
+}

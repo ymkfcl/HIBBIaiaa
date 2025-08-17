@@ -1,0 +1,241 @@
+// lib/i18n.ts
+
+const translations = {
+  en: {
+    app: { 
+        loading: 'Loading HIBBI...' 
+    },
+    header: {
+        credits: '/ 170',
+        loginSignUp: 'Login / Sign Up',
+        logout: 'Logout',
+    },
+    dashboard: {
+        title: 'Your Local AI Studio',
+        subtitle: 'Unleash your creativity. Generate stunning images or craft entire manga series, all within your browser.',
+        imageStudioTitle: 'Image Studio',
+        imageStudioDescription: 'Generate single, high-quality images from text prompts. Perfect for concept art, avatars, and inspiration.',
+        mangaStudioTitle: 'Manga Studio',
+        mangaStudioDescription: 'Create full manga books with characters, pages, and panels. Bring your stories to life, one frame at a time.',
+    },
+    imageStudio: {
+        title: 'Image Studio',
+        promptPlaceholder: 'A cyberpunk cat wearing sunglasses, neon city background...',
+        quickStyles: 'Quick Styles',
+        aspectRatio: 'Aspect Ratio',
+        generating: 'Generating...',
+        generate: 'Generate',
+        galleryTitle: 'Your Gallery',
+        galleryEmpty: 'Your generated images will appear here.',
+    },
+    mangaStudio: {
+        title: 'Manga Studio',
+        newProject: 'New Project',
+        untitledProject: 'Untitled Manga',
+        noProjects: 'Your manga projects will appear here. Create a new one to get started!',
+        lastUpdated: 'Last updated',
+        openEditor: 'Open Editor',
+        backToProjects: 'Back to Projects',
+        pages: 'Pages',
+        characters: 'Characters',
+        page: 'Page',
+        newPage: 'New Page',
+        newCharacter: 'New Character',
+        confirmDeleteCharacter: "Are you sure you want to delete this character?",
+        emptyPanel: 'Empty Panel',
+        addPanel: 'Add Panel to Page',
+        selectPage: 'Select or create a page to begin.',
+        inspector: 'Inspector',
+        panelPrompt: 'Panel Prompt',
+        panelPromptPlaceholder: 'A hero looking over a neon city...',
+        addCharacterToPrompt: 'Add Character to Prompt',
+        createCharacterHint: 'Create a character to add them here.',
+        generateImage: 'Generate Image',
+        dialogue: 'Dialogue',
+        dialoguePlaceholder: "It's time to end this...",
+        selectPanel: 'Select a panel to edit its properties.',
+    },
+    characterModal: {
+        editTitle: 'Edit Character',
+        createTitle: 'Create New Character',
+        saveButton: 'Save Changes',
+        createButton: 'Create Character',
+        nameLabel: 'Character Name',
+        namePlaceholder: 'e.g., Kaito Shadowblade',
+        descriptionLabel: 'Appearance & Personality (Prompt)',
+        descriptionPlaceholder: 'e.g., silver hair, cybernetic eye, calm and collected, wears a black trench coat',
+        avatarLabel: 'Avatar',
+        avatarDescription: 'Generate an avatar based on the name and description.',
+        generateAvatarButton: 'Generate Avatar',
+        alert: 'Please fill in all fields and generate an avatar.',
+    },
+    auth: {
+        login: 'Login',
+        signUp: 'Sign Up',
+        welcomeBack: 'Welcome Back',
+        createAccountTitle: 'Create Your Account',
+        email: 'Email',
+        password: 'Password',
+        confirmPassword: 'Confirm Password',
+        loginButton: 'Login',
+        createAccountButton: 'Create Account & Login',
+        errorEmailPasswordRequired: 'Email and password are required.',
+        errorPasswordsDoNotMatch: 'Passwords do not match.',
+        errorEmailInUse: 'Email already in use.',
+        errorInvalidCredentials: 'Invalid email or password.',
+    },
+    imageModal: {
+        prompt: 'Prompt',
+        generated: 'Generated',
+        download: 'Download Image',
+    },
+    account: {
+        loading: 'Loading account data...',
+        title: 'Account Data',
+        disclaimer: "This page shows the data stored for your account in your browser's local storage. This application is 100% local and does not send this information to any server.",
+        emailLabel: 'Email Address',
+        creditsLabel: 'Remaining Credits',
+        passwordLabel: 'Stored Password',
+        backButton: 'Back to Dashboard',
+    },
+    errors: {
+        mustBeLoggedIn: "You must be logged in to generate images.",
+        notEnoughCredits: "Not enough credits.",
+        generationFailed: "Failed to generate image. Please try again later.",
+        unexpected: 'An unexpected error occurred.',
+    },
+  },
+  fr: {
+    app: { 
+        loading: 'Chargement de HIBBI...' 
+    },
+    header: {
+        credits: '/ 170',
+        loginSignUp: 'Connexion / Inscription',
+        logout: 'Déconnexion',
+    },
+    dashboard: {
+        title: 'Votre Studio IA Local',
+        subtitle: 'Libérez votre créativité. Générez des images époustouflantes ou créez des séries de mangas entières, le tout dans votre navigateur.',
+        imageStudioTitle: 'Studio d\'Image',
+        imageStudioDescription: 'Générez des images uniques de haute qualité à partir de textes. Parfait pour le concept art, les avatars et l\'inspiration.',
+        mangaStudioTitle: 'Studio de Manga',
+        mangaStudioDescription: 'Créez des livres de manga complets avec personnages, pages et panneaux. Donnez vie à vos histoires, une case à la fois.',
+    },
+    imageStudio: {
+        title: 'Studio d\'Image',
+        promptPlaceholder: 'Un chat cyberpunk avec des lunettes de soleil, fond de ville néon...',
+        quickStyles: 'Styles Rapides',
+        aspectRatio: 'Format d\'Image',
+        generating: 'Génération...',
+        generate: 'Générer',
+        galleryTitle: 'Votre Galerie',
+        galleryEmpty: 'Vos images générées apparaîtront ici.',
+    },
+    mangaStudio: {
+        title: 'Studio de Manga',
+        newProject: 'Nouveau Projet',
+        untitledProject: 'Manga sans titre',
+        noProjects: 'Vos projets de manga apparaîtront ici. Créez-en un nouveau pour commencer !',
+        lastUpdated: 'Dernière mise à jour',
+        openEditor: 'Ouvrir l\'Éditeur',
+        backToProjects: 'Retour aux Projets',
+        pages: 'Pages',
+        characters: 'Personnages',
+        page: 'Page',
+        newPage: 'Nouvelle Page',
+        newCharacter: 'Nouveau Personnage',
+        confirmDeleteCharacter: "Êtes-vous sûr de vouloir supprimer ce personnage ?",
+        emptyPanel: 'Case Vide',
+        addPanel: 'Ajouter une Case à la Page',
+        selectPage: 'Sélectionnez ou créez une page pour commencer.',
+        inspector: 'Inspecteur',
+        panelPrompt: 'Prompt de la Case',
+        panelPromptPlaceholder: 'Un héros contemplant une ville néon...',
+        addCharacterToPrompt: 'Ajouter un Personnage au Prompt',
+        createCharacterHint: 'Créez un personnage pour l\'ajouter ici.',
+        generateImage: 'Générer l\'Image',
+        dialogue: 'Dialogue',
+        dialoguePlaceholder: 'Il est temps d\'en finir...',
+        selectPanel: 'Sélectionnez une case pour modifier ses propriétés.',
+    },
+    characterModal: {
+        editTitle: 'Modifier le Personnage',
+        createTitle: 'Créer un Nouveau Personnage',
+        saveButton: 'Enregistrer les Changements',
+        createButton: 'Créer le Personnage',
+        nameLabel: 'Nom du Personnage',
+        namePlaceholder: 'ex: Kaito Shadowblade',
+        descriptionLabel: 'Apparence & Personnalité (Prompt)',
+        descriptionPlaceholder: 'ex: cheveux argentés, œil cybernétique, calme et posé, porte un trench-coat noir',
+        avatarLabel: 'Avatar',
+        avatarDescription: 'Générez un avatar basé sur le nom et la description.',
+        generateAvatarButton: 'Générer l\'Avatar',
+        alert: 'Veuillez remplir tous les champs et générer un avatar.',
+    },
+    auth: {
+        login: 'Connexion',
+        signUp: 'Inscription',
+        welcomeBack: 'Bon Retour',
+        createAccountTitle: 'Créez Votre Compte',
+        email: 'Email',
+        password: 'Mot de passe',
+        confirmPassword: 'Confirmer le mot de passe',
+        loginButton: 'Se Connecter',
+        createAccountButton: 'Créer le Compte & Se Connecter',
+        errorEmailPasswordRequired: 'L\'email et le mot de passe sont requis.',
+        errorPasswordsDoNotMatch: 'Les mots de passe ne correspondent pas.',
+        errorEmailInUse: 'Cet email est déjà utilisé.',
+        errorInvalidCredentials: 'Email ou mot de passe invalide.',
+    },
+    imageModal: {
+        prompt: 'Prompt',
+        generated: 'Générée le',
+        download: 'Télécharger l\'Image',
+    },
+    account: {
+        loading: 'Chargement des données du compte...',
+        title: 'Données du Compte',
+        disclaimer: "Cette page montre les données stockées pour votre compte dans le stockage local de votre navigateur. Cette application est 100% locale et n'envoie ces informations à aucun serveur.",
+        emailLabel: 'Adresse Email',
+        creditsLabel: 'Crédits Restants',
+        passwordLabel: 'Mot de Passe Stocké',
+        backButton: 'Retour au Tableau de Bord',
+    },
+    errors: {
+        mustBeLoggedIn: "Vous devez être connecté pour générer des images.",
+        notEnoughCredits: "Pas assez de crédits.",
+        generationFailed: "La génération de l'image a échoué. Veuillez réessayer plus tard.",
+        unexpected: 'Une erreur inattendue est survenue.',
+    },
+  }
+};
+
+type Language = 'en' | 'fr';
+
+let currentLanguage: Language = 'en';
+
+export const setLanguage = (lang: Language) => {
+  currentLanguage = lang;
+};
+
+// Helper function to navigate nested object with dot notation
+const getNestedValue = (obj: any, path: string): string | undefined => {
+    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+};
+
+export const t = (key: string): string => {
+  const translated = getNestedValue(translations[currentLanguage], key);
+  if (translated) {
+    return translated;
+  }
+
+  // Fallback to English if translation is missing in the current language
+  const fallback = getNestedValue(translations.en, key);
+  if (fallback) {
+    return fallback;
+  }
+
+  // Return the key itself if not found anywhere
+  return key;
+};

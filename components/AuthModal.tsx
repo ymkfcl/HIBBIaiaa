@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { XIcon } from './Icons';
-import { soundManager, Sfx } from '../lib/sounds';
-import { t } from '../lib/i18n';
+import { XIcon } from './Icons.tsx';
+import { soundManager, Sfx } from '../lib/sounds.ts';
+import { t } from '../lib/i18n.ts';
 
 interface AuthModalProps {
   onClose: () => void;

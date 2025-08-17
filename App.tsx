@@ -28,7 +28,6 @@ const App: React.FC = () => {
   const [viewingImage, setViewingImage] = useState<GeneratedImage | null>(null);
   const [user, setUser] = useState<StoredUser | null>(null);
   const [isAppLoading, setIsAppLoading] = useState(true);
-  const [loadingMessage, setLoadingMessage] = useState(t('app.loading'));
   const [appError, setAppError] = useState<string | null>(null);
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
 
@@ -135,12 +134,45 @@ const App: React.FC = () => {
     }
   };
   
-  if (isAppLoading || appError) {
+  if (isAppLoading) {
+    // While loading, render the exact same skeleton as in index.html to avoid flicker.
+    // React will see this matches the initial server-rendered HTML and won't update the DOM.
+    return (
+        <div className="min-h-screen bg-slate-900 text-gray-200" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            <header className="bg-slate-900/50 backdrop-blur-sm border-b border-cyan-500/20 sticky top-0 z-50">
+                <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+                    <div className="text-xl sm:text-2xl font-bold tracking-widest text-cyan-400" style={{ textShadow: '0 0 5px #06b6d4, 0 0 10px #06b6d4' }}>
+                        HIBBI
+                    </div>
+                    <div className="flex items-center space-x-2 sm:space-x-4">
+                        <div className="hidden sm:flex items-center space-x-2">
+                            <div className="w-14 h-8 bg-slate-800/70 rounded-full animate-pulse"></div>
+                            <div className="w-8 h-8 bg-slate-800/70 rounded-full animate-pulse"></div>
+                            <div className="w-8 h-8 bg-slate-800/70 rounded-full animate-pulse"></div>
+                        </div>
+                        <div className="w-24 h-11 bg-slate-800/70 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </header>
+            <main className="container mx-auto px-4 py-8">
+                <div className="flex flex-col items-center justify-center pt-16">
+                    <div className="w-3/4 md:w-1/2 h-10 bg-slate-800/70 rounded-md mb-4 animate-pulse"></div>
+                    <div className="w-full md:w-3/4 h-8 bg-slate-800/70 rounded-md mb-12 animate-pulse"></div>
+                    <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
+                        <div className="h-60 bg-slate-800/70 rounded-lg animate-pulse"></div>
+                        <div className="h-60 bg-slate-800/70 rounded-lg animate-pulse"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+  }
+
+  if (appError) {
     return (
       <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-center p-4">
-        {isAppLoading && <div className="loader mb-4"></div>}
-        <div className={`text-2xl font-bold ${appError ? 'text-red-400' : 'text-cyan-400'}`}>
-          {appError ? appError : loadingMessage}
+        <div className="text-2xl font-bold text-red-400">
+          {appError}
         </div>
       </div>
     );

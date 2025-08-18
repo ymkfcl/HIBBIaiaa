@@ -4,7 +4,7 @@ import { View } from '../App.tsx';
 import { KeyIcon, ZapIcon } from './Icons.tsx';
 import { soundManager, Sfx } from '../lib/sounds.ts';
 import { t } from '../lib/i18n.ts';
-import { StoredUser } from '../types.ts';
+import type { StoredUser } from '../types.ts';
 
 interface AccountProps {
   user: StoredUser | null;

@@ -8,11 +8,11 @@ import ImageStudio from './components/ImageStudio.tsx';
 // import MangaStudio from './components/MangaStudio.tsx';
 import ImageModal from './components/ImageModal.tsx';
 import Account from './components/Account.tsx';
-import { GeneratedImage, StoredUser } from './types.ts';
 import * as auth from './lib/auth.ts';
 import * as db from './lib/db.ts';
 import { soundManager, Sfx } from './lib/sounds.ts';
 import { setLanguage as setI18nLanguage, t } from './lib/i18n.ts';
+import type { GeneratedImage, StoredUser } from './types.ts';
 
 export enum View {
   DASHBOARD,

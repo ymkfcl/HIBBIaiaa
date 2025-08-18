@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { MangaProject, MangaPage, MangaPanel, GeneratedImage, MangaCharacter, StoredUser } from '../types.ts';
 import { PlusIcon, TrashIcon, SparklesIcon, UsersIcon, BookOpenIcon, PencilIcon } from './Icons.tsx';
 import { useImageGeneration } from '../hooks/useImageGeneration.ts';
 import CharacterModal from './CharacterModal.tsx';
@@ -8,6 +7,7 @@ import ConfirmModal from './ConfirmModal.tsx';
 import { soundManager, Sfx } from '../lib/sounds.ts';
 import { t } from '../lib/i18n.ts';
 import * as db from '../lib/db.ts';
+import type { GeneratedImage, MangaCharacter, MangaPage, MangaPanel, MangaProject, StoredUser } from '../types.ts';
 
 interface MangaStudioProps {
   onGenerate: (prompt: string, options?: { aspectRatio?: string }) => Promise<GeneratedImage>;

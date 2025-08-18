@@ -1,6 +1,6 @@
 
 import React, { useState, memo } from 'react';
-import { GeneratedImage } from '../types.ts';
+import type { GeneratedImage } from '../types.ts';
 import { DownloadIcon, SparklesIcon, ImageIcon } from './Icons.tsx';
 import { useImageGeneration } from '../hooks/useImageGeneration.ts';
 import { soundManager, Sfx } from '../lib/sounds.ts';

@@ -62,6 +62,49 @@
         animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
     </style>
+    <script type="text/typescript">
+      // Global interfaces for the entire application.
+      // Babel will process this and make types available for other scripts.
+
+      interface GeneratedImage {
+        id: string;
+        url: string;
+        prompt: string;
+        createdAt: string;
+      }
+
+      interface MangaPanel {
+        id:string;
+        image: GeneratedImage | null;
+        dialogue: string;
+      }
+
+      interface MangaPage {
+        id: string;
+        panels: MangaPanel[];
+        layout: string; // e.g., '2x2', '1x3'
+      }
+
+      interface MangaCharacter {
+          id: string;
+          name: string;
+          description: string; // Prompt-like description for consistent generation
+          avatarUrl: string; // A reference image
+      }
+
+      interface MangaProject {
+        id: string;
+        title: string;
+        characters: MangaCharacter[];
+        pages: MangaPage[];
+        updatedAt: string;
+      }
+
+      interface StoredUser {
+        credits: number;
+        lastCreditReset: number;
+      }
+    </script>
   <script type="importmap">
 {
   "imports": {

@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { MangaCharacter, GeneratedImage } from '../types.ts';
 import { XIcon, SparklesIcon, UserCircleIcon } from './Icons.tsx';
 import { useImageGeneration } from '../hooks/useImageGeneration.ts';
 import { soundManager, Sfx } from '../lib/sounds.ts';
 import { t } from '../lib/i18n.ts';
+import type { GeneratedImage, MangaCharacter } from '../types.ts';
 
 interface CharacterModalProps {
   characterToEdit?: MangaCharacter | null;

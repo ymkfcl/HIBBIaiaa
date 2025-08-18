@@ -1,5 +1,6 @@
 
-import { GeneratedImage, MangaProject, StoredUser } from '../types.ts';
+
+import type { GeneratedImage, MangaProject, StoredUser } from '../types.ts';
 
 const DB_NAME = 'HibbiDB';
 const DB_VERSION = 3; // Incremented version for schema change

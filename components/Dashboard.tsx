@@ -20,17 +20,27 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
     title: string;
     description: string;
     icon: React.ReactNode;
-    onClick: () => void;
-  }> = ({ title, description, icon, onClick }) => {
-    const cardClasses = "relative bg-slate-800/50 p-8 rounded-lg border border-cyan-500/20 transition-all duration-300 group hover:border-cyan-400/50 hover:bg-slate-800/80 transform hover:-translate-y-1 cursor-pointer hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]";
+    onClick?: () => void;
+    disabled?: boolean;
+  }> = ({ title, description, icon, onClick, disabled = false }) => {
+    const cardClasses = `relative bg-slate-800/50 p-8 rounded-lg border border-cyan-500/20 transition-all duration-300 group ${
+        disabled 
+        ? 'opacity-60 cursor-not-allowed filter grayscale' 
+        : 'hover:border-cyan-400/50 hover:bg-slate-800/80 transform hover:-translate-y-1 cursor-pointer hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]'
+    }`;
 
     return (
       <div
-        onClick={onClick}
+        onClick={!disabled ? onClick : undefined}
         className={cardClasses}
       >
+        {disabled && (
+          <div className="absolute top-4 right-4 bg-yellow-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-full transform rotate-6 z-10 shadow-lg">
+            {t('dashboard.comingSoon')}
+          </div>
+        )}
         <div className="flex flex-col items-center text-center">
-          <div className="mb-4 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
+          <div className={`mb-4 text-cyan-400 ${!disabled && "group-hover:text-cyan-300"} transition-colors duration-300`}>
             {icon}
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
@@ -59,7 +69,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
           title={t('dashboard.mangaStudioTitle')}
           description={t('dashboard.mangaStudioDescription')}
           icon={<BookOpenIcon className="w-16 h-16" />}
-          onClick={() => handleCardClick(View.MANGA_STUDIO)}
+          disabled={true}
         />
       </div>
     </div>

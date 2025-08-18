@@ -69,7 +69,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
           title={t('dashboard.mangaStudioTitle')}
           description={t('dashboard.mangaStudioDescription')}
           icon={<BookOpenIcon className="w-16 h-16" />}
-          disabled={true}
+          onClick={() => handleCardClick(View.MANGA_STUDIO)}
         />
       </div>
     </div>

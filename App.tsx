@@ -4,8 +4,7 @@ import { GoogleGenAI } from '@google/genai';
 import Header from './components/Header.tsx';
 import Dashboard from './components/Dashboard.tsx';
 import ImageStudio from './components/ImageStudio.tsx';
-// MangaStudio is coming soon, so it's disabled for now.
-// import MangaStudio from './components/MangaStudio.tsx';
+import MangaStudio from './components/MangaStudio.tsx';
 import ImageModal from './components/ImageModal.tsx';
 import Account from './components/Account.tsx';
 import * as auth from './lib/auth.ts';
@@ -124,8 +123,8 @@ const App: React.FC = () => {
     switch (view) {
       case View.IMAGE_STUDIO:
         return <ImageStudio onGenerate={handleGenerateImage} images={generatedImages} onImageClick={setViewingImage} />;
-      // case View.MANGA_STUDIO:
-      //   return <MangaStudio onGenerate={handleGenerateImage} user={user} />;
+      case View.MANGA_STUDIO:
+        return <MangaStudio onGenerate={handleGenerateImage} user={user} />;
       case View.ACCOUNT:
         return <Account user={user} setView={setView} />;
       case View.DASHBOARD:
